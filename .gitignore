@@ -17,3 +17,6 @@ catalog/BUILD_ID
 dist/
 # lockfile is machine-specific (registry URLs); package.json pins the ranges
 client/package-lock.json
+
+# exception: the Express starter ships its node_modules so it runs with no npm registry (air-gapped)
+!child_apps/starter_express/node_modules/

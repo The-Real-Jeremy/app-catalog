@@ -7,6 +7,23 @@ runs it on demand inside the same app instance, so twenty demos cost what one do
 - How it works and why: [docs/DESIGN.md](docs/DESIGN.md)
 - Air-gapped workspaces (no PyPI, npm or internet): [docs/AIRGAP.md](docs/AIRGAP.md)
 
+## Deploy from the browser (no terminal, no CLI, works air-gapped)
+
+1. On this GitHub page: **Code → Download ZIP** (`app-catalog-main.zip`). No need to unzip it.
+2. In Databricks: **Workspace** → open your home folder → **⋮ → Import** → drop the `.zip` → **Import**.
+   Databricks unzips it into a folder `app-catalog-main/`. Importing the .zip is the documented way to
+   bring in a folder of mixed files.
+3. Open **`app-catalog-main/DEPLOY`**, attach **Serverless**, and click **Run all**. Set the `app_name`
+   widget first if you want a name other than `app-catalog`.
+4. The last cell prints the **app URL**. Open it. `<url>/_catalog/api/health` shows `"offline": true`
+   and each child's install state.
+
+The notebook creates the app if it does not exist, adds the scopes its children declare, deploys from
+the folder it sits in, and waits. Offline mode is on by default: children install only from files in
+the repo (vendored wheels, a shipped `node_modules/`, prebuilt frontends). Re-run it after adding or
+removing a child. To add a child app from its own repo, import that repo's ZIP next to this folder and
+run that repo's `DEPLOY` notebook.
+
 ---
 
 ## Add an app (the whole procedure)

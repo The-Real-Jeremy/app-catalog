@@ -1,2 +1,3 @@
 category: starter
 order: 107
+vendor_node_modules: true   # shipped so it installs with no npm registry (air-gapped)
