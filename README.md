@@ -1,13 +1,6 @@
 # App Catalog
 
-**One Databricks App that hosts many apps.** Each app is a folder in [`child_apps/`](child_apps/),
-a straight copy of that app's own repo. The catalog finds it at start-up, shows it as a card, and
-runs it on demand inside the same app instance, so twenty demos cost what one does.
-
-- How it works and why: [docs/DESIGN.md](docs/DESIGN.md)
-- Air-gapped workspaces (no PyPI, npm or internet): [docs/AIRGAP.md](docs/AIRGAP.md)
-
-## Deploy from the browser (no terminal, no CLI, works air-gapped)
+## Install (browser only: no terminal, no CLI, works air-gapped)
 
 1. On this GitHub page: **Code → Download ZIP** (`app-catalog-main.zip`). No need to unzip it.
 2. In Databricks: **Workspace** → open your home folder → **⋮ → Import** → drop the `.zip` → **Import**.
@@ -23,6 +16,15 @@ the folder it sits in, and waits. Offline mode is on by default: children instal
 the repo (vendored wheels, a shipped `node_modules/`, prebuilt frontends). Re-run it after adding or
 removing a child. To add a child app from its own repo, import that repo's ZIP next to this folder and
 run that repo's `DEPLOY` notebook.
+
+---
+
+**One Databricks App that hosts many apps.** Each app is a folder in [`child_apps/`](child_apps/),
+a straight copy of that app's own repo. The catalog finds it at start-up, shows it as a card, and
+runs it on demand inside the same app instance, so twenty demos cost what one does.
+
+- How it works and why: [docs/DESIGN.md](docs/DESIGN.md)
+- Air-gapped workspaces (no PyPI, npm or internet): [docs/AIRGAP.md](docs/AIRGAP.md)
 
 ---
 
