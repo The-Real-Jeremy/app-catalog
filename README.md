@@ -21,7 +21,12 @@ finds the app and only deploys.
 The notebook creates the app if it does not exist, adds the scopes its children declare, deploys from
 the folder it sits in, and waits. Offline mode is on by default: children install only from files in
 the repo (vendored wheels, a shipped `node_modules/`, prebuilt frontends). Re-run it after adding or
-removing a child. To add a child app from its own repo, import that repo's ZIP next to this folder and
+removing a child.
+
+**To update the catalog** to a newer ZIP: first **rename or delete the existing `app-catalog-main/` folder**.
+Importing a ZIP onto a folder that already exists is refused ("already exists"). Then import the new ZIP, run
+`DEPLOY`, and re-run each child's `DEPLOY` (mode `child`), because the children copied into the old folder are
+not in the new one. To add a child app from its own repo, import that repo's ZIP next to this folder and
 run that repo's `DEPLOY` notebook.
 
 ---
