@@ -116,7 +116,7 @@ Every framework Databricks Apps supports runs here; the `starter_*` folders are 
 | Flask | `starter_flask` | rewrites `Location` headers, cookie paths and root-relative links |
 | FastAPI / uvicorn | `starter_fastapi` | rewrites the hard-coded `--port 8000`; WebSocket + SSE proxied |
 | Shiny for Python | `starter_shiny` | websocket proxied; hard-coded port rewritten |
-| Node.js / Express | `starter_express` | runs `npm install`, then the command |
+| Node.js / Express | `starter_express` | ships `node_modules/` (offline); online it runs `npm install`, then the command |
 | React SPA with a client-side router | (any) | **root mode**: the app sees `/` in its address bar (see DESIGN) |
 | apx (FastAPI + React) | (any) | `npm run deploy` runs its `databricks.yml` build (`uv run apx build`, needs bun) |
 

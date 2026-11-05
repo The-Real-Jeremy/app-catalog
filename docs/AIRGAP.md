@@ -41,7 +41,9 @@ air-gapped workspace:
    user-authorization scopes your children declare **before** the first deploy. Then Deploy from
    the folder.
 
-A workspace import of a .zip does **not** extract it (it lands as one FILE), hence the notebook.
+A workspace import of a `.zip` (folder ⋮ → Import) **does** extract it into a folder, which is how the
+whole repo arrives in one step; see the README's Install section and `DEPLOY`. (An earlier note said it did
+not: that test imported to a path without the `.zip` suffix.)
 
 ## Where a child's packages come from
 - the pre-installed libraries, which need nothing;

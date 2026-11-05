@@ -1,6 +1,6 @@
-// Express starter for the App Catalog. Its one dependency (express) is
-// installed by the catalog with `npm install`, as the platform would for a
-// standalone Node app. Listens on DATABRICKS_APP_PORT like any Databricks App.
+// Express starter for the App Catalog. Its one dependency (express) ships in
+// node_modules/ (vendor_node_modules: true), so it runs with no npm registry;
+// online, the catalog runs `npm install` first, as the platform would. Listens on DATABRICKS_APP_PORT like any Databricks App.
 const express = require('express');
 const app = express();
 const port = Number(process.env.DATABRICKS_APP_PORT || process.env.PORT || 3000);

@@ -2,7 +2,7 @@
   "name": "starter-express",
   "version": "1.0.0",
   "private": true,
-  "description": "An Express app with one npm dependency, installed by the catalog at deploy time.",
+  "description": "An Express app with one npm dependency, shipped in node_modules/ so it runs with no npm registry.",
   "main": "server.js",
   "scripts": { "start": "node server.js" },
   "dependencies": { "express": "^4.21.2" }
