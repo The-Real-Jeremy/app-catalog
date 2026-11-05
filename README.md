@@ -5,7 +5,8 @@
 1. On this GitHub page: **Code → Download ZIP** (`app-ception-main.zip`). No need to unzip it.
 2. In Databricks: **Workspace** → open your home folder → **⋮ → Import** → drop the `.zip` → **Import**.
    Databricks unzips it into a folder `app-ception-main/`. Importing the .zip is the documented way to
-   bring in a folder of mixed files.
+   bring in a folder of mixed files. **Wait 1-2 minutes before step 3**: the unzip carries on after the dialog closes
+   (measured: 677 of 711 files after one minute). Refresh the folder until its contents stop changing.
 3. Open **`app-ception-main/DEPLOY`**, attach **Serverless**, and click **Run all**. Set the `app_name`
    widget first if you want a name other than `app-ception`.
 4. The last cell prints the **app URL**. Open it. `<url>/_catalog/api/health` shows `"offline": true`
