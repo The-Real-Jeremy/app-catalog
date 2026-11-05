@@ -29,6 +29,10 @@ Importing a ZIP onto a folder that already exists is refused ("already exists").
 not in the new one. To add a child app from its own repo, import that repo's ZIP next to this folder and
 run that repo's `DEPLOY` notebook.
 
+**Reinstalling from scratch after deleting the app:** wait about a minute after deleting an app before you Run all
+with the same name. Until it is gone from Compute → Apps, creating it again fails with "An app with the same name
+already exists" (measured: 49 s).
+
 **Renamed from "App Catalog".** The old GitHub URLs redirect here. An existing install keeps
 working:
 - `DEPLOY` finds an existing app named `app-catalog` and deploys to it, keeping the same URL and grants.
