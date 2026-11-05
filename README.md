@@ -13,7 +13,8 @@
 
 **If the notebook stops with "Unable to use fallback policies"** (your workspace requires a budget policy on new
 apps): paste the policy id into the `budget_policy_id` widget and Run all again. The notebook prints the ids it can
-see in use, and uses the only one automatically. Or create the app in the UI first (**Compute → Apps → Create app →
+see in use, and uses the only one automatically (the app then bills against that policy; set
+`budget_policy_id` to choose explicitly). Or create the app in the UI first (**Compute → Apps → Create app →
 Custom**, the same name, pick the policy, add the user-authorization scope **`sql`**), then Run all: the notebook
 finds the app and only deploys.
 
