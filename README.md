@@ -40,20 +40,60 @@ runs it on demand inside the same app instance, so twenty demos cost what one do
 
 ---
 
-## Add an app (the whole procedure)
+## Add any app as a child (browser only)
 
-```bash
-# 1. copy the app's repo in (without its .git) — the folder name becomes its URL: /apps/<folder>/
-rsync -a --exclude .git ~/code/my-demo/ child_apps/my_demo/    # lowercase letters, digits, _ or -
+Each child is a folder in `app-catalog-main/child_apps/`. **The folder name is its URL**,
+`/apps/<folder>/`: use lowercase letters, digits, `_` or `-`.
 
-# 2. deploy the catalog
-DATABRICKS_CONFIG_PROFILE=<profile> npm run deploy             # = node scripts/deploy.mjs
+### A) Its repo has a `DEPLOY` notebook (e.g. dbsql-monitor, hello-isaac, spin-wheel)
+1. GitHub: **Code → Download ZIP**.
+2. Workspace: open **the folder that holds `app-catalog-main/`** → **⋮ → Import** → drop the `.zip`.
+3. Open `<repo>-main/DEPLOY`, leave **mode = `child`**, attach Serverless, and click **Run all**. It
+   copies the app into `child_apps/`, adds the scopes it needs to the catalog app, and redeploys the
+   catalog.
 
-# 3. open the catalog — the new card is there; click it
-```
+### B) Any other app, by hand (no notebook)
+1. **Get its files.**
+   - An app with a repo: GitHub **Download ZIP**.
+   - An app that was deployed by a script (a bundle or the CLI): Compute → Apps → that app shows
+     its **source code path**. That folder holds what the app runs, including anything the script
+     built. Get those files as a `.zip`: from wherever the script deployed them from, or by downloading
+     the folder (Workspace → the folder → ⋮ → Download), checking that the download contains the
+     app's files and not only notebooks.
+2. **Put them in `child_apps/`.** Workspace → `app-catalog-main/child_apps/` → **⋮ → Import** →
+   drop the `.zip`. It unzips into `child_apps/<zip name>/` (a GitHub ZIP gives `<repo>-main/`);
+   rename the folder for a nicer URL. Single files can also be dragged into that dialog.
+3. **Deploy:** Compute → Apps → the catalog app → **Deploy**. The new card appears; open it.
+4. **To remove it**, delete its folder and Deploy. Its card and URL go away, and nothing is left running.
 
-That is all. **Nothing in the catalog needs editing.** The catalog reads your app the way Databricks
-Apps itself would:
+### Checklist before you add an app
+1. **Its packages must install here.** With offline mode on (the default from `DEPLOY`), every line
+   of its `requirements.txt` must either be pre-installed by the Apps runtime or have a wheel (linux
+   x86_64, CPython 3.11). Put wheels in a `wheels/` folder inside the app, or in the catalog's
+   `CATALOG_WHEELHOUSE` volume; `scripts/vendor_wheels.sh` downloads them on any connected machine.
+   - Node packages ship in `node_modules/` (pure-JS, or built for linux x64).
+   - A frontend ships its built output (`dist/`). Nothing is built in an offline workspace.
+   - A script-deployed app's own build output is in its source folder. The packages the platform
+     installed for it are **not**, so check this item even for an app that already runs standalone.
+2. **Scopes and resources go on the catalog app**, before you deploy: Compute → Apps → the catalog →
+   Edit → User authorization / App resources. A scope added later can take minutes to reach viewers.
+   - A copied source folder has no `databricks.yml`, so scopes and resources declared only there
+     are not seen.
+   - An `env` entry with `valueFrom: <resource>` needs a resource of that name on the catalog app,
+     or set its value in `catalog.overrides.yaml`.
+3. **It runs under `/apps/<folder>/`.** The catalog rewrites links, redirects, cookie paths and
+   `fetch`/XHR/WebSocket URLs. Apps with a client-side router run in "root mode" when the router is
+   visible in a `package.json`; for a folder of built files only, add a `catalog.yaml` with
+   `mount: root`. The app must listen on `DATABRICKS_APP_PORT`: a port hard-coded in its code fails,
+   while one written in its `app.yaml` command is rewritten for you.
+4. **It runs as the catalog's identity.** The service principal is the catalog app's (and the
+   viewer's own token for on-behalf-of calls), so grant UC tables, warehouses, Genie spaces and
+   secrets to the **catalog app's service principal**. State the app kept under its old service
+   principal's home folder does not come with it, and `DATABRICKS_APP_NAME` is the catalog's.
+5. **No file over 10 MB** (a Databricks Apps limit, and the Workspace Import limit too).
+
+### How the catalog reads an app
+It reads an app the way Databricks Apps itself would. Nothing in the catalog needs editing.
 
 | it needs | it reads, in this order |
 |---|---|
@@ -63,24 +103,6 @@ Apps itself would:
 | its packages | `requirements.txt` (or `pyproject.toml` + `uv.lock`), `package.json`, installed into **its own** environment at deploy time |
 | OBO scopes / resources | `databricks.yml` `user_api_scopes` + `resources`, `app.yaml` `user_authorization` + `resources` |
 | the card | `README.md` first heading + paragraph (or `databricks.yml` description) |
-
-### What your app must already do (the same as any Databricks App)
-- **Listen on the port it is given**: `DATABRICKS_APP_PORT` / `PORT`, or the framework's own variable
-  (`STREAMLIT_SERVER_PORT`, `GRADIO_SERVER_PORT`, `UVICORN_PORT`, `FLASK_RUN_PORT`). A literal
-  `--port 8000` (or `${DATABRICKS_APP_PORT:-8000}`) in the `app.yaml` command is rewritten for
-  you. A port hard-coded *inside your code* is not (8000 belongs to the catalog), and the card says so.
-- **Declare its packages** in `requirements.txt` / `package.json`. The platform's pre-installed
-  libraries (Streamlit, Dash, Gradio, Flask, FastAPI, Shiny, databricks-sdk, pandas…) are there
-  too, exactly as standalone, and your pins win over them.
-- **Keep files under 10 MB** in the app's folder (a Databricks Apps limit; the deploy names any offender).
-
-### Identity
-A child runs as the **catalog app's service principal** (`DATABRICKS_CLIENT_ID/SECRET` are the
-catalog's) and, for on-behalf-of calls, with **the viewer's own token**. Those are the two identities
-it had standalone, with a different service principal. `npm run deploy` binds the scopes and
-resources your repo **declares** to the catalog app (the union of every child's; nothing is ever
-unbound). Anything else (UC grants, Genie access, a secret scope) you grant to the catalog app's
-service principal, as you would for a standalone app.
 
 ### Per-deployment settings
 To keep a child's copy byte-identical to its repo, put this deployment's values in
@@ -100,22 +122,18 @@ Optional card/behaviour settings (in the child's own `catalog.yaml`, or under it
 (`starter` puts it under *Framework starters*), `hidden`, `keep_warm`, `idle_minutes`,
 `mount` (`prefix` | `root`), `app_dir`, `command`, `source`, `user_api_scopes`, `vendor_node_modules`.
 
-## UI-only flow (no laptop tooling)
-1. Put the app's folder in `<app source folder>/child_apps/<name>/` (Workspace import, a Git folder,
-   or `databricks workspace import-dir`). Leave out `node_modules/`, `.venv/` and files over 10 MB.
-2. Compute → Apps → the catalog → **Deploy**. Discovery and installs run in the container.
-3. To remove an app, delete its folder and Deploy. Its card and URL go away, and nothing is left running.
+### CLI path (optional, for developers with a terminal and the Databricks CLI)
+```bash
+rsync -a --exclude .git ~/code/my-demo/ child_apps/my_demo/    # on your machine, in a clone of this repo
+DATABRICKS_CONFIG_PROFILE=<profile> npm run deploy             # = node scripts/deploy.mjs
+```
+`npm run deploy` also does these:
+- runs an apx / `databricks.yml` artifact build (needs bun);
+- binds the scopes and resources each child **declares** to the catalog app;
+- uploads, deploys, and checks the running app.
 
-| the child… | UI deploy is enough? |
-|---|---|
-| Python or Node app, packages in `requirements.txt` / `package.json` at its app root | **yes** |
-| has its frontend build output committed (e.g. `frontend/dist/`) | **yes** |
-| has a `frontend/` with a `build` script and no built output | **yes**: built in the container, **if** its lockfile resolves to a registry the container can reach |
-| an apx / `databricks.yml` artifact build | **no**: needs bun locally. Use `npm run deploy`, or ship the built `.build/` |
-| needs a resource the catalog does not have yet | **one admin step**: add it to the app (Edit → App resources), or `npm run deploy` once |
-
-`npm run deploy` keeps children that exist only in the workspace folder. It never prunes them
-unless you pass `--prune-remote-children`.
+It keeps children that exist only in the workspace folder, and never prunes them unless you pass
+`--prune-remote-children`.
 
 ## Frameworks
 Every framework Databricks Apps supports runs here; the `starter_*` folders are live, copyable examples.
