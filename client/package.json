@@ -1,0 +1,23 @@
+{
+  "name": "app-catalog-client",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Catalog UI for the App Catalog \u2014 built locally into ../catalog/ui (the Apps container installs nothing).",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.17",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.17",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.0"
+  }
+}

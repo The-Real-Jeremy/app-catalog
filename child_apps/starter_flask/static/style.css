@@ -1,0 +1,6 @@
+body { margin: 0; font: 15px/1.5 system-ui, sans-serif; background: #0f1420; color: #e8edf5; }
+main { max-width: 640px; margin: 48px auto; padding: 0 24px; }
+.dim { color: #a6b0c3; } .ok { color: #0ca30c; }
+input { padding: 8px 10px; border-radius: 8px; border: 1px solid #33405a; background: #141b2a; color: #e8edf5; }
+button { padding: 8px 14px; border-radius: 999px; border: 0; background: #2d6cdf; color: #ffffff; font-weight: 700; margin-left: 6px; }
+a { color: #6ea3f9; }

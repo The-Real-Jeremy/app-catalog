@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Flask starter</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body><main>
+  <h1>Flask starter</h1>
+  <p class="dim">Hello {{ viewer or 'there' }} · catalog base {{ base }}</p>
+  {% if name %}<p class="ok">Session cookie remembered you as <b>{{ name }}</b> (form POST → redirect → cookie).</p>{% endif %}
+  <form method="post" action="/greet"><input name="name" placeholder="Your name" value="{{ name or '' }}"><button>Save</button></form>
+  <p><a href="/api/ping">/api/ping</a> · <a href="{{ url_for('index') }}">reload via url_for</a></p>
+  <p id="js" class="dim">fetch: …</p>
+</main>
+<script>fetch('/api/ping').then(r => r.json()).then(j => { document.getElementById('js').textContent = 'fetch /api/ping → ' + JSON.stringify(j); });</script>
+</body></html>

@@ -1,0 +1,15 @@
+{
+  "name": "app-catalog",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One Databricks App that hosts a catalog of child demo apps dropped into child_apps/.",
+  "scripts": {
+    "build": "node catalog/build.mjs",
+    "start": "node catalog/server.mjs",
+    "build:ui": "cd client && npm run build",
+    "deploy": "node scripts/deploy.mjs",
+    "test": "node --test tests/"
+  },
+  "dependencies": {}
+}

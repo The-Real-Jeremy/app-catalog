@@ -1,0 +1,16 @@
+# App Catalog — the master app.
+#
+# The platform runs `npm install` (there are no dependencies), then `npm run build`
+# (catalog/build.mjs installs every child's dependencies into its own environment),
+# then this command. Children are discovered from child_apps/ at start-up.
+command: ['node', 'catalog/server.mjs']
+
+env:
+  - name: NODE_ENV
+    value: production
+  # Stop a child after this many minutes with no traffic and no open sockets.
+  - name: CATALOG_IDLE_MINUTES
+    value: "30"
+  # Above this share of the container's memory, the least-recently-used idle child is stopped.
+  - name: CATALOG_MEMORY_HIGH_PCT
+    value: "85"

@@ -1,0 +1,19 @@
+# runtime state written by the catalog (venvs, logs, install state) — never commit
+.catalog/
+.catalog-deploy/
+# local tooling
+node_modules/
+client/node_modules/
+.DS_Store
+*.log
+__pycache__/
+*.pyc
+.venv/
+# children's own build byproducts, created by scripts/deploy.mjs or a local run
+child_apps/*/node_modules/
+child_apps/**/node_modules/
+# written by scripts/deploy.mjs on every deploy
+catalog/BUILD_ID
+dist/
+# lockfile is machine-specific (registry URLs); package.json pins the ranges
+client/package-lock.json

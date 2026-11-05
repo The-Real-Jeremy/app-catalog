@@ -1,0 +1,3 @@
+# Optional per-child settings for THIS deployment, keyed by the folder name under child_apps/.
+# Nothing here is required. See README "Per-deployment settings".
+{}

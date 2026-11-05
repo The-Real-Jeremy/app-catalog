@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* Self-hosted DM Sans + DM Mono (OFL 1.1, see /fonts/OFL-*.txt) — the faces of the
+ * Databricks app base. No font CDN: a hanging font host paints nothing. */
+@font-face { font-family: "DM Sans"; font-style: normal; font-weight: 100 1000; font-display: swap; src: url("/_catalog/ui/fonts/DMSans-100_1000-latin.woff2") format("woff2"); }
+@font-face { font-family: "DM Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("/_catalog/ui/fonts/DMMono-400-latin.woff2") format("woff2"); }
+@font-face { font-family: "DM Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("/_catalog/ui/fonts/DMMono-500-latin.woff2") format("woff2"); }
+
+/* ── Themes ────────────────────────────────────────────────────────────────
+ * Every theme defines the SAME variables, so a switch is one attribute on <html>,
+ * never a rebuild. Status colours are FIXED across themes (never re-themed) and
+ * always shown with an icon + a text label, never colour alone. */
+:root, [data-theme="dark"] {
+  --bg: #0b0f16; --bg-raised: #111827; --bg-card: #151d2c; --bg-sunken: #0d131d; --bg-hover: #1c2637;
+  --border: #2a3441; --border-strong: #3a4657;
+  --text: #e5e7eb; --text-dim: #a8b0bd; --text-muted: #808a99;
+  --brand: #4f8ef7; --brand-2: #2d6cdf; --brand-ink: #ffffff; --accent: #14b8a6; --accent-2: #2dd4bf;
+  --glow: rgba(79, 142, 247, .18); --shadow: 0 18px 50px rgba(0, 0, 0, .45);
+  --hero-a: rgba(79, 142, 247, .14); --hero-b: rgba(20, 184, 166, .12);
+  --track: rgba(20, 184, 166, .18);
+  --brand-text: #6ea3f9;
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  --bg: #f5f6f8; --bg-raised: #ffffff; --bg-card: #ffffff; --bg-sunken: #eceef2; --bg-hover: #f0f2f5;
+  --border: #dde1e8; --border-strong: #c3c9d4;
+  --text: #111827; --text-dim: #4b5262; --text-muted: #6b7280;
+  --brand: #2d6cdf; --brand-2: #1d4fb8; --brand-ink: #ffffff; --accent: #0f766e; --accent-2: #14b8a6;
+  --glow: rgba(45, 108, 223, .20); --shadow: 0 14px 40px rgba(16, 24, 40, .12);
+  --hero-a: rgba(45, 108, 223, .16); --hero-b: rgba(20, 184, 166, .12);
+  --track: rgba(15, 118, 110, .16);
+  --brand-text: #1d4fb8;
+  color-scheme: light;
+}
+:root {
+  --ok: #0ca30c; --warn: #fab219; --serious: #ec835a; --crit: #d03b3b; --idle: #8a94a6;
+  --radius: 14px;
+}
+
+@theme inline {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-bg: var(--bg); --color-raised: var(--bg-raised); --color-card: var(--bg-card); --color-sunken: var(--bg-sunken); --color-hover: var(--bg-hover);
+  --color-line: var(--border); --color-line-strong: var(--border-strong);
+  --color-ink: var(--text); --color-dim: var(--text-dim); --color-muted: var(--text-muted);
+  --color-brand: var(--brand); --color-brand-2: var(--brand-2); --color-brand-ink: var(--brand-ink); --color-brand-text: var(--brand-text);
+  --color-accent: var(--accent); --color-accent-2: var(--accent-2);
+  --color-ok: var(--ok); --color-warn: var(--warn); --color-serious: var(--serious); --color-crit: var(--crit); --color-idle: var(--idle);
+}
+
+html, body, #root { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+::selection { background: var(--glow); }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
+
+.hero-wash {
+  background:
+    radial-gradient(900px 380px at 12% -20%, var(--hero-a), transparent 65%),
+    radial-gradient(800px 360px at 92% -10%, var(--hero-b), transparent 60%);
+}
+.glass { background: color-mix(in oklab, var(--bg) 78%, transparent); backdrop-filter: blur(14px) saturate(1.2); }
+
+/* Card reveal: staggered by --i, honours reduced motion. */
+@keyframes rise { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .5s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes pulse-dot { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--ok) 55%, transparent); } 50% { box-shadow: 0 0 0 5px transparent; } }
+.dot-live { animation: pulse-dot 2.2s ease-in-out infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
+@keyframes shimmer { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } }
+.shimmer { animation: shimmer 1.5s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { transform: scale(1); opacity: .95; } 50% { transform: scale(1.06); opacity: 1; } }
+.breathe { animation: breathe 2.4s ease-in-out infinite; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.fade-in { animation: fade-in .35s ease both; }
+@keyframes slide-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.slide-in { animation: slide-in .28s cubic-bezier(.2, .7, .2, 1) both; }
+
+.card-sheen { position: relative; overflow: hidden; }
+.card-sheen::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .07) 45%, transparent 60%);
+  transform: translateX(-100%); transition: transform .9s ease;
+}
+.card-sheen:hover::after { transform: translateX(100%); }
+
+.scroll-thin { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .fade-in, .slide-in { animation: none; }
+  .dot-live, .shimmer, .breathe, .spin { animation: none; }
+  .card-sheen::after { display: none; }
+}
