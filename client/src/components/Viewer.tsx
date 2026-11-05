@@ -156,7 +156,7 @@ export function Viewer({ child, model, initialPath, onBack }: { child: Child; mo
   // The shim inside the child reports navigations; mirror them into our URL.
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
-      if (e.origin !== location.origin || !e.data || e.data.appCatalog !== 'nav' || e.data.name !== child.name) return;
+      if (e.origin !== location.origin || !e.data || e.data.appception !== 'nav' || e.data.name !== child.name) return;
       let p: string = e.data.path ?? '/';
       const prefix = `/apps/${child.name}`;
       if (p.startsWith(prefix)) p = p.slice(prefix.length) || '/';
@@ -177,7 +177,7 @@ export function Viewer({ child, model, initialPath, onBack }: { child: Child; mo
     history.replaceState(history.state, '', u);
   }, [full]);
 
-  useEffect(() => { document.title = `${title ? `${title} · ` : ''}${child.title} — App Catalog`; }, [title, child.title]);
+  useEffect(() => { document.title = `${title ? `${title} · ` : ''}${child.title} — App-ception`; }, [title, child.title]);
 
   const reload = () => { setLoaded(false); if (frame.current) frame.current.src = target(path); };
   const restart = async () => { await childAction(child.name, 'restart').catch(() => {}); setNonce((n) => n + 1); };

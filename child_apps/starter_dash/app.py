@@ -1,4 +1,4 @@
-"""Dash starter for the App Catalog (pre-installed Dash + Plotly).
+"""Dash starter for the App-ception (pre-installed Dash + Plotly).
 
 Dash's browser code requests /_dash-layout, /_dash-update-component and its
 JS bundles from `requests_pathname_prefix`; the catalog sets
@@ -17,7 +17,7 @@ app.layout = html.Div(
     style={"fontFamily": "system-ui, sans-serif", "padding": "28px 36px", "background": "#0f1420", "color": "#e8edf5", "minHeight": "100vh"},
     children=[
         html.H2("Dash starter", style={"margin": "0 0 4px"}),
-        html.Div(f"Callbacks round-trip through the catalog proxy · base {os.environ.get('CATALOG_BASE_PATH', '/')}", style={"color": "#a6b0c3"}),
+        html.Div(f"Callbacks round-trip through the catalog proxy · base {os.environ.get('APPCEPTION_BASE_PATH', os.environ.get('CATALOG_BASE_PATH', '/'))}", style={"color": "#a6b0c3"}),
         html.Div(style={"marginTop": "22px", "maxWidth": "520px"}, children=[
             html.Label("Points"),
             dcc.Slider(id="n", min=10, max=200, step=10, value=60),

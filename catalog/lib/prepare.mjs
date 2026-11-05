@@ -32,20 +32,21 @@ import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, rmSync, createWriteStream } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { isOffline, offlineEnv, findLinks, syncWheelhouse, filterRequirements, requirementsSelfContained } from './offline.mjs';
+import { env } from './env.mjs';
 
 export function catalogDirs(root) {
-  const base = process.env.CATALOG_STATE_DIR ? resolve(process.env.CATALOG_STATE_DIR) : join(root, '.catalog');
+  const base = env('STATE_DIR') ? resolve(env('STATE_DIR')) : join(root, '.catalog');
   const d = { base, state: join(base, 'state'), venvs: join(base, 'venvs'), logs: join(base, 'logs') };
   for (const p of Object.values(d)) mkdirSync(p, { recursive: true });
   return d;
 }
 
 /** The interpreter whose site-packages holds the pre-installed libraries.
- *  On the platform that is <root>/.venv; locally CATALOG_PLATFORM_PYTHON can
+ *  On the platform that is <root>/.venv; locally APPCEPTION_PLATFORM_PYTHON can
  *  point at an emulation venv (scripts/dev-platform-venv.sh). */
 export function platformPython(root) {
   const candidates = [
-    process.env.CATALOG_PLATFORM_PYTHON,
+    env('PLATFORM_PYTHON'),
     join(root, '.venv', 'bin', 'python'),
     join(root, '.catalog', 'platform-venv', 'bin', 'python'),
   ].filter(Boolean);
@@ -199,7 +200,7 @@ export async function prepareChild(manifest, { root, force = false, onStep } = {
   for (const k of Object.keys(env)) if (k.startsWith('npm_lifecycle') || k === 'npm_package_json' || k === 'INIT_CWD') delete env[k];
   const offline = isOffline();
   state.offline = offline;
-  if (offline) log.write('[catalog] CATALOG_OFFLINE=1: no package index or registry will be contacted\n');
+  if (offline) log.write('[catalog] APPCEPTION_OFFLINE=1: no package index or registry will be contacted\n');
 
   // 1. Node dependencies
   if (manifest.deps.node) {
@@ -259,7 +260,7 @@ export async function prepareChild(manifest, { root, force = false, onStep } = {
       const noIndex = offline ? ['--no-index'] : [];
       const pending = readFileSync(resolve(cwd, reqFile), 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && !l.startsWith('-'));
       if (offline && pending.length && !links.length && !requirementsSelfContained(join(cwd, 'requirements.txt'))) {
-        return finish('failed', `offline: needs ${pending.slice(0, 6).join(', ')}${pending.length > 6 ? ', …' : ''}, which the platform does not pre-install, and there are no wheels to install them from — put linux x86_64 / CPython 3.11 wheels in the app's wheels/ folder or in the shared wheelhouse volume (CATALOG_WHEELHOUSE)`);
+        return finish('failed', `offline: needs ${pending.slice(0, 6).join(', ')}${pending.length > 6 ? ', …' : ''}, which the platform does not pre-install, and there are no wheels to install them from — put linux x86_64 / CPython 3.11 wheels in the app's wheels/ folder or in the shared wheelhouse volume (APPCEPTION_WHEELHOUSE)`);
       }
       const nothingLeft = !pending.length && !requirementsSelfContained(join(cwd, 'requirements.txt'));
       if (nothingLeft) log.write('[catalog] nothing left to install: every requirement is pre-installed\n');

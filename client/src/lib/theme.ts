@@ -10,5 +10,5 @@ export function currentTheme(): ThemeKey {
 }
 export function applyTheme(key: ThemeKey) {
   document.documentElement.setAttribute('data-theme', key);
-  try { localStorage.setItem('app-catalog-theme', key); } catch { /* private mode */ }
+  try { localStorage.setItem('app-ception-theme', key); } catch { /* private mode */ }
 }

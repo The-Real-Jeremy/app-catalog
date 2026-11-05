@@ -29,7 +29,7 @@ export function App() {
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  useEffect(() => { if (!route.app) document.title = 'App Catalog'; }, [route.app]);
+  useEffect(() => { if (!route.app) document.title = 'App-ception'; }, [route.app]);
 
   // Open a child in a NEW TAB (the catalog stays where it was); noopener so the child page
   // gets no handle on this window.

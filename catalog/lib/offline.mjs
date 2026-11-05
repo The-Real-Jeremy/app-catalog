@@ -1,5 +1,5 @@
 /**
- * Air-gapped installs (CATALOG_OFFLINE=1 in the catalog's app.yaml).
+ * Air-gapped installs (APPCEPTION_OFFLINE=1 in the catalog's app.yaml).
  *
  * In a workspace with no internet egress, every `pip install` / `npm install` a child
  * needs at deploy time must be satisfied from files that are already inside the
@@ -10,7 +10,7 @@
  *      line they already satisfy is NOT re-installed — under --no-index it could not be.
  *   2. the child's own vendored wheels: `wheels/` (or `vendor/wheels/`) in its app root,
  *      or `--find-links` lines in its requirements.txt (the DQX Studio layout).
- *   3. a shared wheelhouse on a UC VOLUME (CATALOG_WHEELHOUSE=/Volumes/<c>/<s>/<v>/<dir>),
+ *   3. a shared wheelhouse on a UC VOLUME (APPCEPTION_WHEELHOUSE=/Volumes/<c>/<s>/<v>/<dir>),
  *      the same "libraries on a volume" method used for cluster installs. An Apps
  *      container cannot mount /Volumes (measured: PermissionError), so the catalog
  *      copies the wheels into the container over the workspace Files API — a call to
@@ -21,15 +21,16 @@
  * `node_modules/` (built for linux x64) or a bundled server; a frontend ships its built
  * output. Anything else fails fast with a message naming what to vendor.
  *
- * With CATALOG_OFFLINE unset, sources 2 and 3 are still used (as extra find-links) and
+ * With APPCEPTION_OFFLINE unset, sources 2 and 3 are still used (as extra find-links) and
  * the index stays on, so a vendored child also deploys on a connected workspace.
  */
 import { mkdirSync, readdirSync, statSync, writeFileSync, readFileSync, renameSync } from 'node:fs';
 import { join, resolve, basename } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { normaliseHost } from './workspace.mjs';
+import { env } from './env.mjs';
 
-export const isOffline = () => /^(1|true|yes)$/i.test(process.env.CATALOG_OFFLINE ?? '');
+export const isOffline = () => /^(1|true|yes)$/i.test(env('OFFLINE') ?? '');
 
 /** Env that makes every installer refuse the network instead of hanging on it. */
 export function offlineEnv() {
@@ -54,7 +55,7 @@ export function findLinks(appRoot, root) {
 }
 
 export function wheelhouseDir(root) {
-  const base = process.env.CATALOG_STATE_DIR ? resolve(process.env.CATALOG_STATE_DIR) : join(root, '.catalog');
+  const base = env('STATE_DIR') ? resolve(env('STATE_DIR')) : join(root, '.catalog');
   return join(base, 'wheelhouse');
 }
 
@@ -81,10 +82,10 @@ async function spToken(host) {
 }
 
 async function doSync(root) {
-  const src = (process.env.CATALOG_WHEELHOUSE ?? '').trim().replace(/\/+$/, '');
+  const src = (env('WHEELHOUSE') ?? '').trim().replace(/\/+$/, '');
   const dest = wheelhouseDir(root);
-  if (!src) return { ok: true, files: 0, summary: 'none configured (CATALOG_WHEELHOUSE unset)' };
-  if (!/^\/Volumes\/[^/]+\/[^/]+\/[^/]+/.test(src)) return { ok: false, files: 0, summary: `CATALOG_WHEELHOUSE must be a /Volumes/<catalog>/<schema>/<volume>/... path, got ${src}` };
+  if (!src) return { ok: true, files: 0, summary: 'none configured (APPCEPTION_WHEELHOUSE unset)' };
+  if (!/^\/Volumes\/[^/]+\/[^/]+\/[^/]+/.test(src)) return { ok: false, files: 0, summary: `APPCEPTION_WHEELHOUSE must be a /Volumes/<catalog>/<schema>/<volume>/... path, got ${src}` };
   const host = normaliseHost(process.env.DATABRICKS_HOST);
   let token;
   try { token = host ? (await spToken(host)) ?? process.env.DATABRICKS_TOKEN ?? null : null; } catch (e) { return { ok: false, files: 0, summary: `could not authenticate: ${e.message}` }; }

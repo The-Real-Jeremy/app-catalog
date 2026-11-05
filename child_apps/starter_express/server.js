@@ -1,4 +1,4 @@
-// Express starter for the App Catalog. Its one dependency (express) ships in
+// Express starter for the App-ception. Its one dependency (express) ships in
 // node_modules/ (vendor_node_modules: true), so it runs with no npm registry;
 // online, the catalog runs `npm install` first, as the platform would. Listens on DATABRICKS_APP_PORT like any Databricks App.
 const express = require('express');

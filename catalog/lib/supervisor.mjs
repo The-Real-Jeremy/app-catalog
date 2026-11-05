@@ -3,8 +3,8 @@
  *
  *   lazy start     a child starts on its first request (or a Start click)
  *   idle stop      a child with no traffic and no open sockets for
- *                  CATALOG_IDLE_MINUTES (default 30) is stopped to free memory
- *   memory guard   above CATALOG_MEMORY_HIGH_PCT of the container's limit the
+ *                  APPCEPTION_IDLE_MINUTES (default 30) is stopped to free memory
+ *   memory guard   above APPCEPTION_MEMORY_HIGH_PCT of the container's limit the
  *                  least-recently-used idle child is stopped
  *   keep warm      catalog.yaml `keep_warm: true` children start at boot and are
  *                  never idle-stopped
@@ -19,6 +19,7 @@ import { createConnection, createServer } from 'node:net';
 import { readFileSync, readdirSync, existsSync, createWriteStream, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { prepareChild, readState, catalogDirs, absolutePath, platformPython } from './prepare.mjs';
+import { env } from './env.mjs';
 
 const PLATFORM_PORT = '8000';
 const PORT_FLAGS = new Set(['--port', '-p', '--server.port', '--server-port', '--http-port', '--listen-port']);
@@ -219,6 +220,10 @@ export class Child {
       PYTHONUNBUFFERED: '1',
       // keep the child's folder byte-identical to its repo (no __pycache__ written into it)
       PYTHONDONTWRITEBYTECODE: '1',
+      APPCEPTION_CHILD: this.m.name,
+      APPCEPTION_BASE_PATH: this.prefix,
+      APPCEPTION_MOUNT: this.m.mount,
+      // the pre-rename names, for child code written against them
       CATALOG_CHILD: this.m.name,
       CATALOG_BASE_PATH: this.prefix,
       CATALOG_MOUNT: this.m.mount,
@@ -351,9 +356,9 @@ export class Supervisor {
   constructor(root, manifests, opts = {}) {
     this.root = root;
     this.children = new Map(manifests.map((m) => [m.name, new Child(m, this)]));
-    this.idleMs = (Number(process.env.CATALOG_IDLE_MINUTES) || 30) * 60000;
-    this.memHigh = (Number(process.env.CATALOG_MEMORY_HIGH_PCT) || 85) / 100;
-    this.startTimeoutMs = (Number(process.env.CATALOG_START_TIMEOUT_S) || 180) * 1000;
+    this.idleMs = (Number(env('IDLE_MINUTES')) || 30) * 60000;
+    this.memHigh = (Number(env('MEMORY_HIGH_PCT')) || 85) / 100;
+    this.startTimeoutMs = (Number(env('START_TIMEOUT_S')) || 180) * 1000;
     this.resolveValueFrom = opts.resolveValueFrom ?? (async () => ({ ok: false, why: 'no resolver' }));
     this.events = [];
   }

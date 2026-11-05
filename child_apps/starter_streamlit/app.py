@@ -1,4 +1,4 @@
-"""Streamlit starter for the App Catalog.
+"""Streamlit starter for the App-ception.
 
 Uses only the platform's pre-installed Streamlit (no requirements.txt), and
 exercises what usually breaks behind a path prefix: the websocket session,
@@ -15,7 +15,7 @@ st.set_page_config(page_title="Streamlit starter", page_icon="📈", layout="wid
 
 user = st.context.headers.get("X-Forwarded-Preferred-Username") if hasattr(st, "context") else None
 st.title("Streamlit starter")
-st.caption(f"Hello {user or 'there'} · served from the catalog at {os.environ.get('CATALOG_BASE_PATH', '/')} · Streamlit {st.__version__}")
+st.caption(f"Hello {user or 'there'} · served from the catalog at {os.environ.get('APPCEPTION_BASE_PATH', os.environ.get('CATALOG_BASE_PATH', '/'))} · Streamlit {st.__version__}")
 
 if "clicks" not in st.session_state:
     st.session_state.clicks = 0

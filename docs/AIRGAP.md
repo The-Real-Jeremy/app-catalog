@@ -6,6 +6,9 @@ Measured 2026-11-05 on a workspace whose index and registry were switched off by
 (`--no-index`, `UV_OFFLINE`, `npm --offline`). That workspace still had egress, so a truly
 egress-less workspace is the final test.
 
+Settings are `APPCEPTION_*` environment variables in `app.yaml`. The pre-rename `CATALOG_*` names are still read as
+aliases, and `APPCEPTION_*` wins.
+
 ## Audit: every external fetch
 
 | where | what | verdict | fix |
@@ -14,7 +17,7 @@ egress-less workspace is the final test.
 | master build | `npm run build` → `catalog/build.mjs` (node only) | OK | none |
 | master runtime | catalog UI, shim, fonts | OK. 0 external hosts in the served HTML/JS/CSS; fonts self-hosted | none |
 | master runtime | workspace API (`/oidc/v1/token`, `/api/2.0/apps/<self>`, Files API) | OK. In-workspace, not internet | none |
-| child build | `pip install -r requirements.txt` | needs egress unless offline mode | `CATALOG_OFFLINE=1` + wheels (below) |
+| child build | `pip install -r requirements.txt` | needs egress unless offline mode | `APPCEPTION_OFFLINE=1` + wheels (below) |
 | child build | `npm install` / frontend `npm run build` | needs a registry | ship `node_modules/` (`vendor_node_modules: true`) or built `dist/` |
 | child build | apx / `databricks.yml` artifact build | needs bun + PyPI | build on a connected machine (`build_airgap_packages.sh` runs it) |
 | child runtime | CDN scripts/fonts/map tiles in a child's own UI | child-specific | vendor them into the child |
@@ -33,10 +36,10 @@ line the pre-installed set satisfies is skipped; every other line needs a wheel.
 On a connected machine: `scripts/build_airgap_packages.sh <child> …` → `dist/airgap/`: the catalog
 zip, one zip per child, the installer notebook, `README.txt` (the UI steps) and SHA256SUMS. In the
 air-gapped workspace:
-1. Upload the zips to a UC volume you can write to. Import `install_catalog.py` as a notebook.
+1. Upload the zips to a UC volume you can write to. Import `install_appception.py` as a notebook.
 2. Run the notebook once per zip, the catalog first. It checks every sha256, keeps old copies as
    `.bak-<time>`, writes the app into a `/Workspace/...` folder, copies wheels to a volume folder
-   and sets `CATALOG_WHEELHOUSE`. It took 26–42 s per zip on serverless.
+   and sets `APPCEPTION_WHEELHOUSE`. It took 26–42 s per zip on serverless.
 3. Apps → Create app → Edit → App resources → **UC volume** (the wheelhouse), *Can read*. Add the
    user-authorization scopes your children declare **before** the first deploy. Then Deploy from
    the folder.

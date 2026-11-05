@@ -5,7 +5,7 @@
 # Versions are the ones MEASURED in the container (2026-10-14,
 # `pip list` from the platform .venv), which match docs.databricks.com
 # "dependencies" -> "Pre-installed Python libraries". Point the catalog at it with
-#   CATALOG_PLATFORM_PYTHON=.catalog/platform-venv/bin/python
+#   APPCEPTION_PLATFORM_PYTHON=.catalog/platform-venv/bin/python
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VENV="$ROOT/.catalog/platform-venv"

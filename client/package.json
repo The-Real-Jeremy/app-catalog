@@ -1,9 +1,9 @@
 {
-  "name": "app-catalog-client",
+  "name": "app-ception-client",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Catalog UI for the App Catalog \u2014 built locally into ../catalog/ui (the Apps container installs nothing).",
+  "description": "Catalog UI for the App-ception \u2014 built locally into ../catalog/ui (the Apps container installs nothing).",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

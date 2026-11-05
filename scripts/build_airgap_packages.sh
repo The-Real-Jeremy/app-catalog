@@ -1,8 +1,8 @@
 #!/bin/bash
 # Build the air-gapped install packages, on a connected machine:
-#   dist/airgap/app-catalog.zip          the catalog (no children), CATALOG_OFFLINE=1
+#   dist/airgap/app-ception.zip          the catalog (no children), APPCEPTION_OFFLINE=1
 #   dist/airgap/child-<name>.zip         one child each: its app + the wheels it needs
-#   dist/airgap/install_catalog.py       the installer notebook (handles both kinds)
+#   dist/airgap/install_appception.py       the installer notebook (handles both kinds)
 #   dist/airgap/README.txt               the UI steps
 #
 #   scripts/build_airgap_packages.sh <child> [child ...]    (folder names under child_apps/)
@@ -18,7 +18,7 @@ OUT=dist/airgap
 SHA=$(git rev-parse --short HEAD)$(git diff --quiet -- catalog scripts setup child_apps && echo "" || echo -dirty)
 export PY=${PY:-$PWD/.catalog/platform-venv/bin/python}
 rm -rf "$OUT"; mkdir -p "$OUT"
-WORK=$(mktemp -d /tmp/app-catalog-pkg.XXXX)
+WORK=$(mktemp -d /tmp/app-ception-pkg.XXXX)
 
 leakscan() {  # fail if a workspace host, token or (via LEAK_PATTERNS_FILE) a site identifier survived
   local hits extra=()
@@ -54,13 +54,13 @@ python3 - "$C/app/app.yaml" <<'PY'
 import sys
 p = sys.argv[1]; t = open(p).read().rstrip() + "\n"
 t += ('  # Air-gapped: never contact a package index or registry (catalog/lib/offline.mjs).\n'
-      '  - name: CATALOG_OFFLINE\n    value: "1"\n'
-      '  # Set by install_catalog.py to the volume folder holding the child apps\' wheels.\n'
-      '  - name: CATALOG_WHEELHOUSE\n    value: ""\n')
+      '  - name: APPCEPTION_OFFLINE\n    value: "1"\n'
+      '  # Set by install_appception.py to the volume folder holding the child apps\' wheels.\n'
+      '  - name: APPCEPTION_WHEELHOUSE\n    value: ""\n')
 open(p, "w").write(t)
 PY
 rm -f "$C/app/catalog/BUILD_ID"; echo "airgap-$SHA" > "$C/app/catalog/BUILD_ID"
-leakscan "$C"; manifest "$C" catalog ""; zipit "$C" "$PWD/$OUT/app-catalog.zip"
+leakscan "$C"; manifest "$C" catalog ""; zipit "$C" "$PWD/$OUT/app-ception.zip"
 
 # ── 2. one package per child ─────────────────────────────────────────────────
 for k in "${KIDS[@]}"; do
@@ -76,9 +76,9 @@ for k in "${KIDS[@]}"; do
   leakscan "$P/child"; manifest "$P" child "$k"; zipit "$P" "$PWD/$OUT/child-$k.zip"
 done
 
-cp setup/airgap/install_catalog.py "$OUT/install_catalog.py"
+cp setup/airgap/install_appception.py "$OUT/install_appception.py"
 cp setup/airgap/README.txt "$OUT/README.txt"
-leakscan "$OUT/install_catalog.py"; leakscan "$OUT/README.txt"
-(cd "$OUT" && shasum -a 256 *.zip install_catalog.py README.txt > SHA256SUMS)
+leakscan "$OUT/install_appception.py"; leakscan "$OUT/README.txt"
+(cd "$OUT" && shasum -a 256 *.zip install_appception.py README.txt > SHA256SUMS)
 ls -la "$OUT"
 rm -rf "$WORK"

@@ -1,4 +1,4 @@
-"""Flask starter for the App Catalog (pre-installed Flask, `flask run`).
+"""Flask starter for the App-ception (pre-installed Flask, `flask run`).
 
 Exercises what a path prefix breaks in a server-rendered app: url_for links,
 static files, a form POST, a redirect (Location header) and a session cookie.
@@ -14,7 +14,7 @@ app.secret_key = os.environ.get("FLASK_SECRET", "starter-not-secret")
 @app.get("/")
 def index():
     return render_template("index.html", name=session.get("name"), viewer=request.headers.get("X-Forwarded-Preferred-Username"),
-                           base=os.environ.get("CATALOG_BASE_PATH", "/"))
+                           base=os.environ.get("APPCEPTION_BASE_PATH", os.environ.get("CATALOG_BASE_PATH", "/")))
 
 
 @app.post("/greet")

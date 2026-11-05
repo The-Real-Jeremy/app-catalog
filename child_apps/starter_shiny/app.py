@@ -1,4 +1,4 @@
-"""Shiny for Python starter for the App Catalog (pre-installed Shiny).
+"""Shiny for Python starter for the App-ception (pre-installed Shiny).
 
 Shiny keeps a websocket open per session and uses relative URLs for it.
 """

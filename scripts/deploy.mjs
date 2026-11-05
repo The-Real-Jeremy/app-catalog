@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Deploy the App Catalog — ONE command, re-runnable:
+ * Deploy the App-ception — ONE command, re-runnable:
  *
- *   node scripts/deploy.mjs                       # profile $DATABRICKS_CONFIG_PROFILE (or DEFAULT), app app-catalog
+ *   node scripts/deploy.mjs                       # profile $DATABRICKS_CONFIG_PROFILE (or DEFAULT), app app-ception
  *   node scripts/deploy.mjs --profile P --app NAME [--dry-run] [--no-build] [--strict] [--prune-remote-children]
  *
  * What it does, in order, and why each step exists:
@@ -42,7 +42,7 @@ const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const PROFILE = opt('--profile', process.env.DATABRICKS_CONFIG_PROFILE || 'DEFAULT');
-const APP = opt('--app', 'app-catalog');
+const APP = opt('--app', 'app-ception');
 const DRY = flag('--dry-run');
 // --stage-dir <dir>: write exactly what would be shipped into <dir> and stop — no workspace,
 // no login (used by scripts/build_airgap_bundle.sh). --only a,b limits the children.
@@ -114,7 +114,7 @@ const built = new Set();
 // build would ship silently after the child's source changed.
 for (const c of children.filter((x) => x.artifacts)) {
   if (NO_BUILD) { log(`${c.name}: artifact build check skipped (--no-build)`); continue; }
-  const cache = join(homedir(), '.cache', 'app-catalog', 'builds', c.name);
+  const cache = join(homedir(), '.cache', 'app-ception', 'builds', c.name);
   const spec = c.artifacts;
   const outRel = spec.source_code_path.replace(/^\.\//, '');
   const stamp = join(cache, '.catalog-build-source');
@@ -312,7 +312,7 @@ const DEFAULT_SCOPES = new Set(['iam.access-control:read', 'iam.current-user:rea
 let app = (await api('GET', `/api/2.0/apps/${APP}`, null, { allow: [404] }));
 if (app.status === 404) {
   log(`creating app ${APP}`);
-  await api('POST', '/api/2.0/apps', { name: APP, description: 'App Catalog: one Databricks App that hosts many child demo apps.', user_api_scopes: [...new Set(children.flatMap((c) => c.scopes))] });
+  await api('POST', '/api/2.0/apps', { name: APP, description: 'App-ception: one Databricks App that hosts many child demo apps.', user_api_scopes: [...new Set(children.flatMap((c) => c.scopes))] });
   app = await api('GET', `/api/2.0/apps/${APP}`);
 }
 app = app.body;
@@ -330,15 +330,15 @@ for (const r of app.resources ?? []) {
   bound.push(r);
 }
 const added = [];
-// The shared wheelhouse volume named in app.yaml (CATALOG_WHEELHOUSE) — the catalog's SP reads it
+// The shared wheelhouse volume named in app.yaml (APPCEPTION_WHEELHOUSE) — the catalog's SP reads it
 // over the Files API at build time, so it needs READ VOLUME, which binding the volume grants.
 const masterEnv = (() => { try { return yaml.load(readFileSync(join(ROOT, 'app.yaml'), 'utf8'))?.env ?? []; } catch { return []; } })();
-const wheelhouse = masterEnv.find((e) => e?.name === 'CATALOG_WHEELHOUSE')?.value;
+const wheelhouse = masterEnv.find((e) => e?.name === 'APPCEPTION_WHEELHOUSE' || e?.name === 'APPCEPTION_WHEELHOUSE')?.value;
 const vol = /^\/Volumes\/([^/]+)\/([^/]+)\/([^/]+)/.exec(String(wheelhouse ?? ''));
 if (vol) {
   const full = `${vol[1]}.${vol[2]}.${vol[3]}`;
   if (!boundKeys.has(`uc_securable:${full}`)) {
-    bound.push({ name: 'wheelhouse', description: 'shared wheelhouse for child installs (CATALOG_WHEELHOUSE)', uc_securable: { securable_type: 'VOLUME', securable_full_name: full, permission: 'READ_VOLUME' } });
+    bound.push({ name: 'wheelhouse', description: 'shared wheelhouse for child installs (APPCEPTION_WHEELHOUSE)', uc_securable: { securable_type: 'VOLUME', securable_full_name: full, permission: 'READ_VOLUME' } });
     boundKeys.add(`uc_securable:${full}`);
     added.push(`wheelhouse = volume ${full} (READ_VOLUME)`);
   }

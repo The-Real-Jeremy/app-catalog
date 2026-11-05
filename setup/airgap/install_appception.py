@@ -1,8 +1,8 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Install the App Catalog, or a child app into it (air-gapped)
+# MAGIC # Install the App-ception, or a child app into it (air-gapped)
 # MAGIC
-# MAGIC One notebook for every package: `app-catalog.zip` (the catalog itself) and `child-<name>.zip`
+# MAGIC One notebook for every package: `app-ception.zip` (the catalog itself) and `child-<name>.zip`
 # MAGIC (one child app). Run it on any compute that can read the volume and write your workspace folder. Nothing
 # MAGIC here contacts the internet. It:
 # MAGIC 1. checks the zip against its `MANIFEST.json` (sha256 of every file);
@@ -10,14 +10,14 @@
 # MAGIC    carries the existing `child_apps/` over; **child**: writes `<install_dir>/child_apps/<name>/`, moving
 # MAGIC    an older copy of that child aside first. Nothing is deleted;
 # MAGIC 3. copies the package's `wheelhouse/` into `wheelhouse_dir` (a UC volume) and, for the catalog, points
-# MAGIC    the app's `CATALOG_WHEELHOUSE` at it.
+# MAGIC    the app's `APPCEPTION_WHEELHOUSE` at it.
 # MAGIC
-# MAGIC Then **Deploy** the app (Compute → Apps → app-catalog → Deploy). See README.txt for first-time setup.
+# MAGIC Then **Deploy** the app (Compute → Apps → app-ception → Deploy). See README.txt for first-time setup.
 
 # COMMAND ----------
 
-dbutils.widgets.text("package_zip", "/Volumes/<catalog>/<schema>/<volume>/app-catalog.zip", "1. Package zip")
-dbutils.widgets.text("install_dir", "/Workspace/Users/<you>/apps/app-catalog", "2. Catalog folder (app source)")
+dbutils.widgets.text("package_zip", "/Volumes/<catalog>/<schema>/<volume>/app-ception.zip", "1. Package zip")
+dbutils.widgets.text("install_dir", "/Workspace/Users/<you>/apps/app-ception", "2. Catalog folder (app source)")
 dbutils.widgets.text("wheelhouse_dir", "/Volumes/<catalog>/<schema>/<volume>/catalog_wheelhouse", "3. Wheelhouse folder (volume)")
 W = {k: dbutils.widgets.get(k).strip().rstrip("/") for k in ["package_zip", "install_dir", "wheelhouse_dir"]}
 for k, v in W.items():
@@ -30,7 +30,7 @@ print(W)
 
 import hashlib, json, os, shutil, tempfile, time, zipfile
 
-work = tempfile.mkdtemp(prefix="app-catalog-install-")
+work = tempfile.mkdtemp(prefix="app-ception-install-")
 local_zip = os.path.join(work, "package.zip")
 shutil.copyfile(W["package_zip"], local_zip)
 with zipfile.ZipFile(local_zip) as z:
@@ -84,13 +84,13 @@ if kind == "catalog":
                 shutil.copytree(src, os.path.join(dest, "child_apps", c)); kept.append(c)
     p = os.path.join(dest, "app.yaml")
     y = open(p).read()
-    key = 'name: CATALOG_WHEELHOUSE\n    value: ""'
-    assert key in y, "app.yaml has no empty CATALOG_WHEELHOUSE entry to fill"
-    open(p, "w").write(y.replace(key, f'name: CATALOG_WHEELHOUSE\n    value: "{W["wheelhouse_dir"]}"'))
+    key = 'name: APPCEPTION_WHEELHOUSE\n    value: ""'
+    assert key in y, "app.yaml has no empty APPCEPTION_WHEELHOUSE entry to fill"
+    open(p, "w").write(y.replace(key, f'name: APPCEPTION_WHEELHOUSE\n    value: "{W["wheelhouse_dir"]}"'))
     print(f"catalog: wrote {written}/{n_payload} files to {dest}; children carried over: {kept or 'none'}")
 else:
     assert os.path.isfile(os.path.join(W["install_dir"], "catalog", "server.mjs")), \
-        f"{W['install_dir']} is not a catalog install — install app-catalog.zip first"
+        f"{W['install_dir']} is not a catalog install — install app-ception.zip first"
     dest = os.path.join(W["install_dir"], "child_apps", name)
     old = move_aside(dest)
     if old:  # keep the backup OUT of child_apps, or the catalog would discover it as an app
@@ -113,4 +113,4 @@ for n in sorted(os.listdir(whl_src)) if os.path.isdir(whl_src) else []:
 have = sorted(n for n in os.listdir(W["wheelhouse_dir"]) if n.endswith(".whl"))
 print(f"wheelhouse {W['wheelhouse_dir']}: {len(have)} wheels ({copied} copied now)")
 shutil.rmtree(work, ignore_errors=True)
-print("Done. Now: Compute -> Apps -> app-catalog -> Deploy (source code path: " + W["install_dir"] + ")")
+print("Done. Now: Compute -> Apps -> app-ception -> Deploy (source code path: " + W["install_dir"] + ")")

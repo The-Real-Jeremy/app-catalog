@@ -1,5 +1,5 @@
 /**
- * App Catalog — the master app.
+ * App-ception — the master app.
  *
  * ONE Databricks App that serves a catalog of child apps, each found in
  * child_apps/<name>/ and run as a subprocess on its own localhost port, behind
@@ -29,12 +29,13 @@ import { proxyHttp, proxyUpgrade } from './lib/proxy.mjs';
 import { readState, catalogDirs } from './lib/prepare.mjs';
 import { ownApp, resourceValue, resourceKind, resourceTarget } from './lib/workspace.mjs';
 import { isOffline, wheelhouseDir } from './lib/offline.mjs';
+import { env } from './lib/env.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(process.env.CATALOG_ROOT ?? join(HERE, '..'));
+const ROOT = resolve(env('ROOT') ?? join(HERE, '..'));
 const UI_DIR = join(HERE, 'ui');
 const PUBLIC_DIR = join(HERE, 'public');
-const PORT = Number(process.env.DATABRICKS_APP_PORT || process.env.CATALOG_PORT || 8790);
+const PORT = Number(process.env.DATABRICKS_APP_PORT || env('PORT') || 8790);
 const STARTED_AT = new Date().toISOString();
 const BUILD_ID = (() => { try { return readFileSync(join(HERE, 'BUILD_ID'), 'utf8').trim(); } catch { return 'dev'; } })();
 const IS_APP = !!process.env.DATABRICKS_APP_NAME;
@@ -144,7 +145,7 @@ function childFromReferer(req) {
   return null;
 }
 function childFromCookie(req) {
-  const n = cookie(req, 'oac_child');
+  const n = cookie(req, 'appception_child');
   return n ? sup.get(n) : null;
 }
 
@@ -163,7 +164,7 @@ function interstitial(res, child, { error } = {}) {
   const failed = !!error || ['failed', 'crashed', 'needs_build'].includes(s.state);
   const body = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(child.m.title)} · starting</title><style>${PAGE_CSS}</style></head><body><div class="card">
-<div class="dim">App Catalog</div><h1>${failed ? 'Could not start' : 'Starting'} ${esc(child.m.title)}</h1>
+<div class="dim">App-ception</div><h1>${failed ? 'Could not start' : 'Starting'} ${esc(child.m.title)}</h1>
 <div class="dim">${esc(child.m.frameworkLabel)} · /apps/${esc(child.name)}/</div>
 ${failed ? `<pre>${esc(redact(error ?? s.lastError ?? s.prepare?.error ?? 'unknown error'))}</pre><a href="#" onclick="fetch('/_catalog/api/children/${esc(child.name)}/restart',{method:'POST'}).then(()=>location.reload());return false">Retry</a><a class="ghost" href="/?app=${esc(child.name)}">Details</a>`
     : `<div class="phase" id="ph">${esc(s.phase ?? 'waking up…')}</div><div class="bar"><i></i></div>`}
@@ -176,7 +177,7 @@ ${failed ? '' : `<script>(function(){var t0=Date.now();function poll(){fetch('/_
 function notFoundPage(req, res, msg) {
   if (!isNavigation(req)) return send(res, 404, msg);
   const apps = sup.list().filter((c) => !c.m.hidden).map((c) => `<a class="ghost" href="/?app=${esc(c.name)}">${esc(c.m.title)}</a>`).join('');
-  send(res, 404, `<!doctype html><html><head><meta charset="utf-8"><title>Not found</title><style>${PAGE_CSS}</style></head><body><div class="card"><div class="dim">App Catalog</div><h1>Nothing here</h1><p class="dim">${esc(msg)}</p><a href="/">Open the catalog</a><div>${apps}</div></div></body></html>`, 'text/html; charset=utf-8');
+  send(res, 404, `<!doctype html><html><head><meta charset="utf-8"><title>Not found</title><style>${PAGE_CSS}</style></head><body><div class="card"><div class="dim">App-ception</div><h1>Nothing here</h1><p class="dim">${esc(msg)}</p><a href="/">Open the catalog</a><div>${apps}</div></div></body></html>`, 'text/html; charset=utf-8');
 }
 
 /** Every process in the container (Linux /proc), command line redacted and trimmed. */
@@ -261,7 +262,7 @@ async function master(req, res, url) {
       // What is actually on disk and running, so a removed child's leftovers are checkable.
       venvs: (() => { try { return readdirSync(catalogDirs(ROOT).venvs).sort(); } catch { return []; } })(),
       offline: isOffline(),
-      wheelhouse: { source: process.env.CATALOG_WHEELHOUSE || null, wheels: (() => { try { return readdirSync(wheelhouseDir(ROOT)).filter((n) => n.endsWith('.whl')).sort(); } catch { return []; } })() },
+      wheelhouse: { source: env('WHEELHOUSE') || null, wheels: (() => { try { return readdirSync(wheelhouseDir(ROOT)).filter((n) => n.endsWith('.whl')).sort(); } catch { return []; } })() },
       processes: processList(),
     });
   }
@@ -297,13 +298,13 @@ function serveCatalogIndex(req, res) {
   if (existsSync(f)) return serveFile(res, f, { cache: 'no-cache', req });
   // UI not built yet: a plain list, so the catalog is never a blank page.
   const items = sup.list().map((c) => `<li><a href="/apps/${esc(c.name)}/">${esc(c.m.title)}</a> <span class="dim">${esc(c.m.frameworkLabel)} · ${esc(c.state)}</span></li>`).join('');
-  return send(res, 200, `<!doctype html><html><head><meta charset="utf-8"><title>App Catalog</title><style>${PAGE_CSS}</style></head><body><div class="card"><h1>App Catalog</h1><ul>${items}</ul></div></body></html>`, 'text/html; charset=utf-8');
+  return send(res, 200, `<!doctype html><html><head><meta charset="utf-8"><title>App-ception</title><style>${PAGE_CSS}</style></head><body><div class="card"><h1>App-ception</h1><ul>${items}</ul></div></body></html>`, 'text/html; charset=utf-8');
 }
 
 /* ───────────────────────── child routing ─────────────────────────────────── */
 
 function onChildHtml(req, res, child, headers) {
-  const c = `oac_child=${encodeURIComponent(child.name)}; Path=/; SameSite=Lax; HttpOnly`;
+  const c = `appception_child=${encodeURIComponent(child.name)}; Path=/; SameSite=Lax; HttpOnly`;
   headers['set-cookie'] = [].concat(headers['set-cookie'] ?? [], c);
   headers['cache-control'] = headers['cache-control'] ?? 'no-cache';
 }

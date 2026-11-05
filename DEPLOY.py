@@ -1,10 +1,10 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Deploy the App Catalog (browser only)
+# MAGIC # Deploy App-ception (browser only)
 # MAGIC
-# MAGIC 1. On GitHub: **Code → Download ZIP** (`app-catalog-main.zip`).
-# MAGIC 2. In the workspace: open a folder (e.g. your home) → **⋮ → Import** → drop the .zip. Databricks unzips it into `app-catalog-main/`.
-# MAGIC 3. Open `app-catalog-main/DEPLOY` (this notebook), attach **Serverless**, **Run all**.
+# MAGIC 1. On GitHub: **Code → Download ZIP** (`app-ception-main.zip`).
+# MAGIC 2. In the workspace: open a folder (e.g. your home) → **⋮ → Import** → drop the .zip. Databricks unzips it into `app-ception-main/`.
+# MAGIC 3. Open `app-ception-main/DEPLOY` (this notebook), attach **Serverless**, **Run all**.
 # MAGIC
 # MAGIC It deploys the app from the folder this notebook is in: it creates the app if needed, sets the scopes its children
 # MAGIC declare, deploys, waits, and prints the URL. It needs no CLI, pip or npm; only the Databricks SDK that the
@@ -12,7 +12,7 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("app_name", "app-catalog", "1. App name")
+dbutils.widgets.text("app_name", "app-ception", "1. App name")
 dbutils.widgets.dropdown("offline", "true", ["true", "false"], "2. Offline installs (no PyPI/npm)")
 dbutils.widgets.text("wheelhouse_volume_dir", "", "3. Optional wheelhouse /Volumes/... folder")
 dbutils.widgets.text("extra_scopes", "sql", "4. Scopes to set up front (comma-separated)")
@@ -30,7 +30,7 @@ import os, re, time, json
 ctx = dbutils.notebook.entry_point.getDbutils().notebook().getContext()
 SRC = "/Workspace" + os.path.dirname(ctx.notebookPath().get())
 assert os.path.isfile(f"{SRC}/app.yaml") and os.path.isfile(f"{SRC}/catalog/server.mjs"), \
-    f"{SRC} does not look like the app-catalog folder (no app.yaml / catalog/server.mjs next to this notebook)"
+    f"{SRC} does not look like the App-ception folder (no app.yaml / catalog/server.mjs next to this notebook)"
 print("source folder:", SRC)
 
 # COMMAND ----------
@@ -41,12 +41,12 @@ def set_env(text, name, value):
     block = f'  - name: {name}\n    value: "{value}"\n'
     pat = re.compile(rf'  - name: {re.escape(name)}\n    value: "?[^\n]*"?\n')
     return pat.sub(block, text) if pat.search(text) else text.rstrip() + "\n" + block
-y2 = set_env(y, "CATALOG_OFFLINE", "1" if OFFLINE else "0")
+y2 = set_env(y, "APPCEPTION_OFFLINE", "1" if OFFLINE else "0")
 if WHEELHOUSE:
-    y2 = set_env(y2, "CATALOG_WHEELHOUSE", WHEELHOUSE)
+    y2 = set_env(y2, "APPCEPTION_WHEELHOUSE", WHEELHOUSE)
 if y2 != y:
     open(f"{SRC}/app.yaml", "w").write(y2)
-print("CATALOG_OFFLINE =", "1" if OFFLINE else "0", "| CATALOG_WHEELHOUSE =", WHEELHOUSE or "(none: wheels come from each child's own wheels/ folder)")
+print("APPCEPTION_OFFLINE =", "1" if OFFLINE else "0", "| APPCEPTION_WHEELHOUSE =", WHEELHOUSE or "(none: wheels come from each child's own wheels/ folder)")
 
 # The user-authorization scopes every child declares (databricks.yml user_api_scopes, app.yaml
 # user_authorization.scopes, catalog.yaml user_api_scopes). Set BEFORE deploying: a scope added later
@@ -177,9 +177,22 @@ def wait_compute(states, minutes=15):
     raise TimeoutError(f"compute of {APP} did not reach {states}; last {st}")
 
 app = get_app()
+if app is None and APP == "app-ception" and dbutils.widgets.get("app_name").strip() == "app-ception":
+    # Renamed from "App Catalog": an install made before the rename has an app named app-catalog. Keep using it
+    # (same URL, same service principal and its grants) rather than silently creating a second app.
+    try:
+        old = api.do("GET", "/api/2.0/apps/app-catalog")
+    except NotFound:
+        old = None
+    if old:
+        APP = "app-catalog"
+        app = old
+        print("Found the pre-rename app 'app-catalog': deploying to it (same URL and grants).\n"
+              "  To move to the new name instead: set app_name = app-ception and Run all (a NEW app, new URL and service\n"
+              "  principal: re-grant its access), then stop app-catalog under Compute → Apps.")
 if app is None:
     print(f"creating app {APP} …")
-    create_app(APP, "App Catalog: one Databricks App that hosts many apps.", SCOPES, dbutils.widgets.get("budget_policy_id").strip())
+    create_app(APP, "App-ception: one Databricks App that hosts many apps.", SCOPES, dbutils.widgets.get("budget_policy_id").strip())
     app = wait_compute({"ACTIVE", "STOPPED", "ERROR"})
 have = set(app.get("user_api_scopes") or []) - DEFAULT_SCOPES
 resources = list(app.get("resources") or [])

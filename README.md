@@ -1,13 +1,13 @@
-# App Catalog
+# App-ception
 
 ## Install (browser only: no terminal, no CLI, works air-gapped)
 
-1. On this GitHub page: **Code → Download ZIP** (`app-catalog-main.zip`). No need to unzip it.
+1. On this GitHub page: **Code → Download ZIP** (`app-ception-main.zip`). No need to unzip it.
 2. In Databricks: **Workspace** → open your home folder → **⋮ → Import** → drop the `.zip` → **Import**.
-   Databricks unzips it into a folder `app-catalog-main/`. Importing the .zip is the documented way to
+   Databricks unzips it into a folder `app-ception-main/`. Importing the .zip is the documented way to
    bring in a folder of mixed files.
-3. Open **`app-catalog-main/DEPLOY`**, attach **Serverless**, and click **Run all**. Set the `app_name`
-   widget first if you want a name other than `app-catalog`.
+3. Open **`app-ception-main/DEPLOY`**, attach **Serverless**, and click **Run all**. Set the `app_name`
+   widget first if you want a name other than `app-ception`.
 4. The last cell prints the **app URL**. Open it. `<url>/_catalog/api/health` shows `"offline": true`
    and each child's install state.
 
@@ -23,11 +23,22 @@ the folder it sits in, and waits. Offline mode is on by default: children instal
 the repo (vendored wheels, a shipped `node_modules/`, prebuilt frontends). Re-run it after adding or
 removing a child.
 
-**To update the catalog** to a newer ZIP: first **rename or delete the existing `app-catalog-main/` folder**.
+**To update the catalog** to a newer ZIP: first **rename or delete the existing `app-ception-main/` folder**.
 Importing a ZIP onto a folder that already exists is refused ("already exists"). Then import the new ZIP, run
 `DEPLOY`, and re-run each child's `DEPLOY` (mode `child`), because the children copied into the old folder are
 not in the new one. To add a child app from its own repo, import that repo's ZIP next to this folder and
 run that repo's `DEPLOY` notebook.
+
+**Renamed from "App Catalog".** The old GitHub URLs redirect here. An existing install keeps
+working:
+- `DEPLOY` finds an existing app named `app-catalog` and deploys to it, keeping the same URL and grants.
+- The child `DEPLOY`s find an `app-catalog-main/` folder.
+- The old `CATALOG_*` settings still apply, as aliases of `APPCEPTION_*`.
+
+To update an existing install to this code: rename the old `app-catalog-main/` folder aside, import this ZIP
+(it becomes `app-ception-main/`), run `DEPLOY`, then re-run each child's `DEPLOY`. To move to the new app name
+as well: set `app_name = app-ception`. That creates a new app with a new URL and a new service principal, so
+re-grant its access, then stop the old app.
 
 ---
 
@@ -42,12 +53,12 @@ runs it on demand inside the same app instance, so twenty demos cost what one do
 
 ## Add any app as a child (browser only)
 
-Each child is a folder in `app-catalog-main/child_apps/`. **The folder name is its URL**,
+Each child is a folder in `app-ception-main/child_apps/`. **The folder name is its URL**,
 `/apps/<folder>/`: use lowercase letters, digits, `_` or `-`.
 
 ### A) Its repo has a `DEPLOY` notebook (e.g. dbsql-monitor, hello-isaac, spin-wheel)
 1. GitHub: **Code → Download ZIP**.
-2. Workspace: open **the folder that holds `app-catalog-main/`** → **⋮ → Import** → drop the `.zip`.
+2. Workspace: open **the folder that holds `app-ception-main/`** → **⋮ → Import** → drop the `.zip`.
 3. Open `<repo>-main/DEPLOY`, leave **mode = `child`**, attach Serverless, and click **Run all**. It
    copies the app into `child_apps/`, adds the scopes it needs to the catalog app, and redeploys the
    catalog.
@@ -60,7 +71,7 @@ Each child is a folder in `app-catalog-main/child_apps/`. **The folder name is i
      built. Get those files as a `.zip`: from wherever the script deployed them from, or by downloading
      the folder (Workspace → the folder → ⋮ → Download), checking that the download contains the
      app's files and not only notebooks.
-2. **Put them in `child_apps/`.** Workspace → `app-catalog-main/child_apps/` → **⋮ → Import** →
+2. **Put them in `child_apps/`.** Workspace → `app-ception-main/child_apps/` → **⋮ → Import** →
    drop the `.zip`. It unzips into `child_apps/<zip name>/` (a GitHub ZIP gives `<repo>-main/`);
    rename the folder for a nicer URL. Single files can also be dragged into that dialog.
 3. **Deploy:** Compute → Apps → the catalog app → **Deploy**. The new card appears; open it.
@@ -70,7 +81,7 @@ Each child is a folder in `app-catalog-main/child_apps/`. **The folder name is i
 1. **Its packages must install here.** With offline mode on (the default from `DEPLOY`), every line
    of its `requirements.txt` must either be pre-installed by the Apps runtime or have a wheel (linux
    x86_64, CPython 3.11). Put wheels in a `wheels/` folder inside the app, or in the catalog's
-   `CATALOG_WHEELHOUSE` volume; `scripts/vendor_wheels.sh` downloads them on any connected machine.
+   `APPCEPTION_WHEELHOUSE` volume; `scripts/vendor_wheels.sh` downloads them on any connected machine.
    - Node packages ship in `node_modules/` (pure-JS, or built for linux x64).
    - A frontend ships its built output (`dist/`). Nothing is built in an offline workspace.
    - A script-deployed app's own build output is in its source folder. The packages the platform
@@ -159,14 +170,14 @@ scripts/build_airgap_packages.sh <child> …    # air-gapped install packages (d
 
 # local: a laptop copy of the platform's Python + pre-installed libraries, then the server
 bash scripts/dev-platform-venv.sh
-CATALOG_PORT=8790 CATALOG_PLATFORM_PYTHON=$PWD/.catalog/platform-venv/bin/python npm start
+CATALOG_PORT=8790 APPCEPTION_PLATFORM_PYTHON=$PWD/.catalog/platform-venv/bin/python npm start
 ```
 
 Tunable in `app.yaml` env:
-- `CATALOG_IDLE_MINUTES` (default 30): an app with no traffic and no open sockets for that long is stopped.
-- `CATALOG_MEMORY_HIGH_PCT` (85): above this share of the container's memory, the least-recently-used idle app is stopped.
-- `CATALOG_START_TIMEOUT_S` (180) and `CATALOG_BUILD_CONCURRENCY` (3).
-- `CATALOG_OFFLINE` / `CATALOG_WHEELHOUSE`: air-gapped installs.
+- `APPCEPTION_IDLE_MINUTES` (default 30): an app with no traffic and no open sockets for that long is stopped.
+- `APPCEPTION_MEMORY_HIGH_PCT` (85): above this share of the container's memory, the least-recently-used idle app is stopped.
+- `APPCEPTION_START_TIMEOUT_S` (180) and `APPCEPTION_BUILD_CONCURRENCY` (3).
+- `APPCEPTION_OFFLINE` / `APPCEPTION_WHEELHOUSE`: air-gapped installs.
 
 ## Layout
 ```

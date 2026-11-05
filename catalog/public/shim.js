@@ -1,5 +1,5 @@
 /*
- * App Catalog — child URL shim.
+ * App-ception — child URL shim.
  *
  * Injected as the first <script> in every HTML page a child app serves. The
  * child believes it lives at "/", but in the browser it lives at /apps/<name>/.
@@ -19,14 +19,14 @@
 (function () {
   'use strict';
   var script = document.currentScript;
-  if (!script || window.__appCatalog) return;
+  if (!script || window.__appception) return;
   var P = script.getAttribute('data-prefix');
   var MODE = script.getAttribute('data-mode') || 'prefix';
   var NAME = script.getAttribute('data-name') || '';
   if (!P) return;
   var ORIGIN = location.origin;
   var HOST = location.host;
-  window.__appCatalog = { prefix: P, mode: MODE, name: NAME };
+  window.__appception = { prefix: P, mode: MODE, name: NAME };
 
   function inPrefix(path) {
     return path === P || path.indexOf(P + '/') === 0 || path.indexOf(P + '?') === 0 || path.indexOf(P + '#') === 0 || path.indexOf('/_catalog/') === 0;
@@ -159,7 +159,7 @@
   function notifyParent() {
     try {
       if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ appCatalog: 'nav', name: NAME, mode: MODE, path: location.pathname + location.search + location.hash, title: document.title }, ORIGIN);
+        window.parent.postMessage({ appception: 'nav', name: NAME, mode: MODE, path: location.pathname + location.search + location.hash, title: document.title }, ORIGIN);
       }
     } catch (e) { /* ignore */ }
   }
@@ -183,9 +183,9 @@
   // ── a way back, when the app is opened outside the catalog's viewer ──────
   if (window.top === window && MODE === 'prefix') {
     var addPill = function () {
-      if (document.getElementById('app-catalog-pill')) return;
+      if (document.getElementById('app-ception-pill')) return;
       var a = document.createElement('a');
-      a.id = 'app-catalog-pill';
+      a.id = 'app-ception-pill';
       a.href = '/?app=' + encodeURIComponent(NAME);
       a.textContent = '◂ Catalog';
       a.title = 'Back to the app catalog';

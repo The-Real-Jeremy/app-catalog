@@ -1,4 +1,4 @@
-"""Gradio starter for the App Catalog (pre-installed Gradio).
+"""Gradio starter for the App-ception (pre-installed Gradio).
 
 Gradio builds absolute URLs for its API from its root path; the catalog sets
 GRADIO_ROOT_PATH=/apps/<name> so they stay under the prefix.

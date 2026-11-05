@@ -1,4 +1,4 @@
-"""FastAPI starter for the App Catalog.
+"""FastAPI starter for the App-ception.
 
 Its command hard-codes --port 8000, as many standalone apps do; the catalog
 rewrites that to the child's own port. The page checks the three transports
@@ -38,7 +38,7 @@ let n=0;const es=new EventSource('/api/stream');es.onmessage=e=>{n++;set('s',tru
 def page(request: Request):
     who = request.headers.get("x-forwarded-preferred-username") or "there"
     up = humanize.naturaldelta(dt.datetime.now(dt.timezone.utc) - STARTED)
-    return PAGE.replace("__WHO__", f"Hello {who}").replace("__UP__", up).replace("__BASE__", os.environ.get("CATALOG_BASE_PATH", "/"))
+    return PAGE.replace("__WHO__", f"Hello {who}").replace("__UP__", up).replace("__BASE__", os.environ.get("APPCEPTION_BASE_PATH", os.environ.get("CATALOG_BASE_PATH", "/")))
 
 
 @app.get("/api/hello")

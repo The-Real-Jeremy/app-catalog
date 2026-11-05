@@ -68,7 +68,7 @@ export function BrandMenu({ onTheme }: { onTheme?: (t: ThemeKey) => void }) {
         className="flex items-center gap-3 rounded-xl p-1 pr-2 transition hover:bg-hover" data-testid="brand">
         <img src={t.logo} alt={t.label} className="h-9 w-9 rounded-[10px] object-cover shadow-sm" />
         <span className="text-left leading-tight">
-          <span className="block text-[15px] font-bold tracking-tight text-ink">{t.brand} App Catalog</span>
+          <span className="block text-[15px] font-bold tracking-tight text-ink">App-ception</span>
           <span className="block text-[11px] text-muted">demos · showcases · prototypes</span>
         </span>
       </button>

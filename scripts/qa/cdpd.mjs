@@ -25,7 +25,7 @@ import { writeFileSync, rmSync } from 'node:fs';
 const PROFILE = process.env.QA_PROFILE || process.env.DATABRICKS_CONFIG_PROFILE || 'DEFAULT';
 const CDP_PORT = 9377;
 const CTL_PORT = 9378;
-const DIR = '/tmp/app-catalog-qa-chrome';
+const DIR = '/tmp/app-ception-qa-chrome';
 const W = 1512;
 const H = 982;
 

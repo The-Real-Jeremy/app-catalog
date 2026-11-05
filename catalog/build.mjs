@@ -12,15 +12,16 @@ import { fileURLToPath } from 'node:url';
 import { writeFileSync } from 'node:fs';
 import { discoverAll } from './lib/discover.mjs';
 import { prepareChild, catalogDirs } from './lib/prepare.mjs';
+import { env } from './lib/env.mjs';
 
-const ROOT = resolve(process.env.CATALOG_ROOT ?? join(dirname(fileURLToPath(import.meta.url)), '..'));
-if (process.env.CATALOG_PREPARE_AT_BUILD === '0') {
-  console.log('[catalog-build] CATALOG_PREPARE_AT_BUILD=0 — children will be prepared on first start');
+const ROOT = resolve(env('ROOT') ?? join(dirname(fileURLToPath(import.meta.url)), '..'));
+if (env('PREPARE_AT_BUILD') === '0') {
+  console.log('[catalog-build] APPCEPTION_PREPARE_AT_BUILD=0 — children will be prepared on first start');
   process.exit(0);
 }
 const t0 = Date.now();
 const { children } = discoverAll(ROOT);
-const concurrency = Math.max(1, Number(process.env.CATALOG_BUILD_CONCURRENCY) || 3);
+const concurrency = Math.max(1, Number(env('BUILD_CONCURRENCY')) || 3);
 console.log(`[catalog-build] preparing ${children.length} children (concurrency ${concurrency}) in ${ROOT}`);
 const queue = [...children];
 const results = [];

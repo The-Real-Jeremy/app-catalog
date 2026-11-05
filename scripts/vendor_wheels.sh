@@ -1,8 +1,8 @@
 #!/bin/bash
 # Download the wheels a child app needs, built for the Databricks Apps runtime
 # (linux x86_64, CPython 3.11), on a CONNECTED machine — for an air-gapped catalog
-# (CATALOG_OFFLINE=1). Put the result in the child's wheels/ folder, or upload it
-# to the shared wheelhouse volume (CATALOG_WHEELHOUSE).
+# (APPCEPTION_OFFLINE=1). Put the result in the child's wheels/ folder, or upload it
+# to the shared wheelhouse volume (APPCEPTION_WHEELHOUSE).
 #
 #   scripts/vendor_wheels.sh <out_dir> -r <requirements.txt>     # everything a child lists
 #   scripts/vendor_wheels.sh <out_dir> 'humanize==4.*' orjson     # named packages
