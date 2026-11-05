@@ -11,6 +11,12 @@
 4. The last cell prints the **app URL**. Open it. `<url>/_catalog/api/health` shows `"offline": true`
    and each child's install state.
 
+**If the notebook stops with "Unable to use fallback policies"** (your workspace requires a budget policy on new
+apps): paste the policy id into the `budget_policy_id` widget and Run all again. The notebook prints the ids it can
+see in use, and uses the only one automatically. Or create the app in the UI first (**Compute → Apps → Create app →
+Custom**, the same name, pick the policy, add the user-authorization scope **`sql`**), then Run all: the notebook
+finds the app and only deploys.
+
 The notebook creates the app if it does not exist, adds the scopes its children declare, deploys from
 the folder it sits in, and waits. Offline mode is on by default: children install only from files in
 the repo (vendored wheels, a shipped `node_modules/`, prebuilt frontends). Re-run it after adding or
