@@ -15,9 +15,13 @@
 dbutils.widgets.text("app_name", "app-catalog", "1. App name")
 dbutils.widgets.dropdown("offline", "true", ["true", "false"], "2. Offline installs (no PyPI/npm)")
 dbutils.widgets.text("wheelhouse_volume_dir", "", "3. Optional wheelhouse /Volumes/... folder")
+dbutils.widgets.text("extra_scopes", "sql", "4. Scopes to set up front (comma-separated)")
 APP = dbutils.widgets.get("app_name").strip()
 OFFLINE = dbutils.widgets.get("offline") == "true"
 WHEELHOUSE = dbutils.widgets.get("wheelhouse_volume_dir").strip().rstrip("/")
+# Scopes for children you will add LATER (e.g. sql for DBSQL Monitor): a scope added to an existing app can
+# take a while to reach viewers' tokens, so give the app the ones you expect from the start.
+EXTRA_SCOPES = {s.strip() for s in dbutils.widgets.get("extra_scopes").split(",") if s.strip()}
 assert APP and APP.replace("-", "").isalnum() and APP == APP.lower(), "app name: lowercase letters, digits and '-'"
 assert not WHEELHOUSE or WHEELHOUSE.startswith("/Volumes/"), "the wheelhouse must be a /Volumes/<catalog>/<schema>/<volume>/... folder"
 
@@ -60,6 +64,7 @@ children = sorted(d for d in os.listdir(f"{SRC}/child_apps") if os.path.isdir(f"
 for c in children:
     for f in ("databricks.yml", "app.yaml", "app/app.yaml", "catalog.yaml"):
         SCOPES |= scopes_in(f"{SRC}/child_apps/{c}/{f}")
+SCOPES |= EXTRA_SCOPES
 print("children:", ", ".join(children))
 print("scopes they declare:", sorted(SCOPES) or "none")
 
