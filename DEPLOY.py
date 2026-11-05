@@ -17,6 +17,7 @@ dbutils.widgets.dropdown("offline", "true", ["true", "false"], "2. Offline insta
 dbutils.widgets.text("wheelhouse_volume_dir", "", "3. Optional wheelhouse /Volumes/... folder")
 dbutils.widgets.text("extra_scopes", "sql", "4. Scopes to set up front (comma-separated)")
 dbutils.widgets.text("budget_policy_id", "", "5. Budget policy id, if your workspace requires one")
+dbutils.widgets.dropdown("use_existing_app_catalog", "yes", ["yes", "no"], "6. Reuse a pre-rename app-catalog app if present")
 APP = dbutils.widgets.get("app_name").strip()
 OFFLINE = dbutils.widgets.get("offline") == "true"
 WHEELHOUSE = dbutils.widgets.get("wheelhouse_volume_dir").strip().rstrip("/")
@@ -177,7 +178,7 @@ def wait_compute(states, minutes=15):
     raise TimeoutError(f"compute of {APP} did not reach {states}; last {st}")
 
 app = get_app()
-if app is None and APP == "app-ception" and dbutils.widgets.get("app_name").strip() == "app-ception":
+if app is None and APP == "app-ception" and dbutils.widgets.get("use_existing_app_catalog") == "yes":
     # Renamed from "App Catalog": an install made before the rename has an app named app-catalog. Keep using it
     # (same URL, same service principal and its grants) rather than silently creating a second app.
     try:
@@ -188,8 +189,8 @@ if app is None and APP == "app-ception" and dbutils.widgets.get("app_name").stri
         APP = "app-catalog"
         app = old
         print("Found the pre-rename app 'app-catalog': deploying to it (same URL and grants).\n"
-              "  To move to the new name instead: set app_name = app-ception and Run all (a NEW app, new URL and service\n"
-              "  principal: re-grant its access), then stop app-catalog under Compute → Apps.")
+              "  To move to the new name instead: set use_existing_app_catalog = no and Run all. That creates a NEW app\n"
+              "  'app-ception' (new URL and service principal: re-grant its access); then stop app-catalog under Compute → Apps.")
 if app is None:
     print(f"creating app {APP} …")
     create_app(APP, "App-ception: one Databricks App that hosts many apps.", SCOPES, dbutils.widgets.get("budget_policy_id").strip())

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * QA control daemon: ONE headed Chrome (own profile, own port — never a pool slot, never
+ * QA control daemon: ONE headed Chrome (its own throwaway profile and port, never
  * --headless), ONE long-lived CDP session to ONE page, with a workspace bearer header on
  * every request, so a deployed Databricks App can be driven like a viewer with no SSO.
  *

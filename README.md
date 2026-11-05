@@ -37,8 +37,8 @@ working:
 
 To update an existing install to this code: rename the old `app-catalog-main/` folder aside, import this ZIP
 (it becomes `app-ception-main/`), run `DEPLOY`, then re-run each child's `DEPLOY`. To move to the new app name
-as well: set `app_name = app-ception`. That creates a new app with a new URL and a new service principal, so
-re-grant its access, then stop the old app.
+as well: set the `use_existing_app_catalog` widget to `no`. That creates a new app, `app-ception`, with a new URL
+and a new service principal, so re-grant its access, then stop the old app.
 
 ---
 
