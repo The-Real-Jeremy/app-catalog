@@ -93,6 +93,21 @@ w = WorkspaceClient()
 api = w.api_client
 DEFAULT_SCOPES = {"iam.access-control:read", "iam.current-user:read"}
 
+# An app that was just started or is mid-deployment refuses updates for a while ("pending deployment",
+# "deployment in progress", compute STARTING). Wait it out: retry every 20 s for up to about 20 minutes.
+import re as _re
+_BUSY = _re.compile(r"pending|in progress|STARTING|STOPPING|another deployment|active deployment", _re.I)
+def retry_pending(what, fn, minutes=20, every=20):
+    t0 = time.time()
+    while True:
+        try:
+            return fn()
+        except Exception as e:
+            if not _BUSY.search(str(e)) or time.time() - t0 > minutes * 60:
+                raise
+            print(f"  {what}: the app is busy ({str(e)[:100]}); retrying in {every}s …", flush=True)
+            time.sleep(every)
+
 # ── Budget / usage policies ──────────────────────────────────────────────────────────────────────────
 # A workspace can require every serverless resource (including an app) to name a budget policy; then a
 # create without one fails with "Unable to use fallback policies, please manually select a policy".
@@ -167,7 +182,7 @@ def add_scopes(name, a, scopes):
     body = keep_policy(a, {"name": name, "description": a.get("description", ""),
                            "user_api_scopes": sorted(have | scopes), "resources": a.get("resources") or []})
     try:
-        api.do("PATCH", f"/api/2.0/apps/{name}", body=body)
+        retry_pending("scope update", lambda: api.do("PATCH", f"/api/2.0/apps/{name}", body=body))
         print(f"{name}: scopes now {sorted(have | scopes)}")
         return True
     except Exception as e:
@@ -223,7 +238,7 @@ if not SCOPES <= have or vol_res:
     app = wait_compute({"ACTIVE", "STOPPED", "ERROR"})
     body = keep_policy(app, {"name": APP, "description": app.get("description", ""), "user_api_scopes": sorted(have | SCOPES), "resources": resources})
     try:   # a full replacement: everything already bound, and the app's policy, are kept
-        api.do("PATCH", f"/api/2.0/apps/{APP}", body=body)
+        retry_pending("app update", lambda: api.do("PATCH", f"/api/2.0/apps/{APP}", body=body))
         print("app updated: scopes", sorted(have | SCOPES), "| resources", [r.get("name") for r in resources])
     except Exception as e:
         print(f"Could not update {APP} ({str(e)[:140]}).\nAdd the scopes {sorted(SCOPES - have)} in the UI: Compute → Apps → {APP} → Edit → "
