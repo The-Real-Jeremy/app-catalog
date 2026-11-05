@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { CatalogModel, Child } from './lib/api';
 import { getCatalog } from './lib/api';
-import { Catalog } from './components/Catalog';
+import { Catalog, viewerHref } from './components/Catalog';
 import { Viewer } from './components/Viewer';
 
 function readRoute(): { app: string | null; path: string | null } {
@@ -31,9 +31,10 @@ export function App() {
 
   useEffect(() => { if (!route.app) document.title = 'App Catalog'; }, [route.app]);
 
+  // Open a child in a NEW TAB (the catalog stays where it was); noopener so the child page
+  // gets no handle on this window.
   const open = (c: Child) => {
-    history.pushState({}, '', `/?app=${encodeURIComponent(c.name)}`);
-    setRoute({ app: c.name, path: null });
+    window.open(viewerHref(c), '_blank', 'noopener');
   };
   const back = () => {
     history.pushState({}, '', '/');

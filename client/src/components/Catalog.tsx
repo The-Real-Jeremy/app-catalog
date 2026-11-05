@@ -50,6 +50,9 @@ function Needs({ child }: { child: Child }) {
   );
 }
 
+/** The catalog's own viewer page for a child (frame + toolbar); every Open goes there, in a new tab. */
+export const viewerHref = (c: Child) => `/?app=${encodeURIComponent(c.name)}`;
+
 function AppCard({ child, index, onOpen }: { child: Child; index: number; onOpen: (c: Child) => void }) {
   const st = child.status;
   const trouble = child.problems.length > 0 || ['failed', 'crashed', 'needs_build'].includes(st.state);
@@ -90,7 +93,8 @@ function AppCard({ child, index, onOpen }: { child: Child; index: number; onOpen
                 className="rounded-full border border-line px-2.5 py-1 text-[11px] text-dim transition hover:border-line-strong hover:text-ink disabled:opacity-40" data-testid={`wake-${child.name}`}>
                 {st.state === 'running' ? 'Stop' : 'Start'}
               </button>
-              <span className="inline-flex items-center gap-1 rounded-full bg-brand px-3 py-1 text-[12px] font-bold text-brand-ink transition group-hover:gap-2">Open <span aria-hidden>→</span></span>
+              <a href={viewerHref(child)} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()} data-testid={`open-${child.name}`}
+                className="inline-flex items-center gap-1 rounded-full bg-brand px-3 py-1 text-[12px] font-bold text-brand-ink transition group-hover:gap-2">Open <span aria-hidden>↗</span></a>
             </div>
           </div>
         </div>
